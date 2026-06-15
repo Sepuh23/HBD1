@@ -36,7 +36,7 @@ export const DEFAULT_PLAYLIST: Track[] = [
     id: 'track-1',
     title: 'Semua Aku Dirayakan',
     artist: 'Nadin Amizah',
-    src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Placeholder: ganti dengan link mp3 asli
+    src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Note: Ganti URL ini di admin panel dengan link mp3 asli
     cover: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=260',
   }
 ];
@@ -94,7 +94,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   ]
 };
 
-const CONFIG_KEY = 'romantic-birthday-config-v2';
+const CONFIG_KEY = 'romantic-birthday-config-v3';
 
 export async function loadConfig(): Promise<AppConfig> {
   // On Vercel, filesystem persistence doesn't work. 

@@ -111,6 +111,10 @@ export default function AdminPanel() {
           </div>
 
           <div className="flex items-center gap-3">
+            <div className="hidden md:block mr-4 text-right">
+              <div className="text-[10px] font-bold text-romantic-rose uppercase tracking-tighter">Vercel Mode</div>
+              <div className="text-[9px] text-romantic-dark/40 max-w-[150px] leading-tight">Persistence follows hardcoded source defaults.</div>
+            </div>
             <button
               onClick={handleResetDefaults}
               className="px-4 py-2 rounded-full border border-gray-200 text-romantic-dark/70 hover:text-romantic-rose hover:bg-romantic-blush/30 hover:border-romantic-rose-light text-xs font-semibold uppercase tracking-wider transition-all duration-300 flex items-center gap-1.5 cursor-pointer"
@@ -627,7 +631,8 @@ export default function AdminPanel() {
                       placeholder="https://example.com/audio.mp3"
                       className="w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none text-xs text-romantic-dark font-mono"
                     />
-                    <div className="text-center text-[10px] text-romantic-dark/40 italic">or upload local file</div>
+                    <div className="text-center text-[10px] text-romantic-rose font-medium italic">Pasting direct MP3 links is recommended for Vercel.</div>
+                    <div className="text-center text-[10px] text-romantic-dark/40 italic">or upload local file (Limited)</div>
                     <input
                       type="file"
                       accept="audio/mp3,audio/*"
