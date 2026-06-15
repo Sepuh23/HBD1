@@ -33,11 +33,11 @@ export interface AppConfig {
 
 export const DEFAULT_PLAYLIST: Track[] = [
   {
-    id: 'track-custom-1',
-    title: 'halo',
-    artist: 'halo',
-    src: 'https://example.com/audio.mp3', // This is just a placeholder from their screenshot, they'll likely update it.
-    cover: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&q=80&w=260',
+    id: 'track-1',
+    title: 'Semua Aku Dirayakan',
+    artist: 'Nadin Amizah',
+    src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Placeholder: ganti dengan link mp3 asli
+    cover: 'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=260',
   }
 ];
 
@@ -97,39 +97,31 @@ export const DEFAULT_CONFIG: AppConfig = {
 const CONFIG_KEY = 'romantic-birthday-config-v2';
 
 export async function loadConfig(): Promise<AppConfig> {
-  // Always try server first for the most up-to-date config
-  try {
-    const response = await fetch('/api/config');
-    if (response.ok) {
-      const data = await response.json();
-      if (data && Object.keys(data).length > 0) {
-        const merged = { ...DEFAULT_CONFIG, ...data };
-        localStorage.setItem(CONFIG_KEY, JSON.stringify(merged));
-        return merged;
-      }
-    }
-  } catch (e) {
-    console.warn('Failed to load config from server, falling back to local storage:', e);
-  }
-
-  // Fallback to localStorage if server fails
+  // On Vercel, filesystem persistence doesn't work. 
+  // We prioritize the hardcoded defaults in the code.
+  
+  // Optional: Try local storage for browser-only persistence (client side only)
   const local = localStorage.getItem(CONFIG_KEY);
   if (local) {
     try {
-      return JSON.parse(local);
+      const parsed = JSON.parse(local);
+      return { ...DEFAULT_CONFIG, ...parsed };
     } catch (e) {
-      console.error('Failed to parse local config');
+      console.warn('Failed to parse local config');
     }
   }
 
+  // We skip the server fetch if we want the hardcoded code values to be the "source of truth"
+  // because the server config on Vercel is temporary and gets deleted.
   return { ...DEFAULT_CONFIG };
 }
 
 export async function saveConfig(cfg: AppConfig): Promise<void> {
-  // Save to localStorage immediately
+  // Save to localStorage so the user sees changes locally immediately
   localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
 
-  // Try to save to server
+  // We still try to save to server for development environments, 
+  // but we know it won't persist on Vercel.
   try {
     await fetch('/api/config', {
       method: 'POST',
@@ -137,6 +129,6 @@ export async function saveConfig(cfg: AppConfig): Promise<void> {
       body: JSON.stringify(cfg)
     });
   } catch (e) {
-    console.error('Failed to save config to server:', e);
+    console.warn('Server save failed (expected on Vercel):', e);
   }
 }
