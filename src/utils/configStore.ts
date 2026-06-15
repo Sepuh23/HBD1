@@ -97,7 +97,22 @@ export const DEFAULT_CONFIG: AppConfig = {
 const CONFIG_KEY = 'romantic-birthday-config-v2';
 
 export async function loadConfig(): Promise<AppConfig> {
-  // First try localStorage for immediate local feedback
+  // Always try server first for the most up-to-date config
+  try {
+    const response = await fetch('/api/config');
+    if (response.ok) {
+      const data = await response.json();
+      if (data && Object.keys(data).length > 0) {
+        const merged = { ...DEFAULT_CONFIG, ...data };
+        localStorage.setItem(CONFIG_KEY, JSON.stringify(merged));
+        return merged;
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to load config from server, falling back to local storage:', e);
+  }
+
+  // Fallback to localStorage if server fails
   const local = localStorage.getItem(CONFIG_KEY);
   if (local) {
     try {
@@ -105,19 +120,6 @@ export async function loadConfig(): Promise<AppConfig> {
     } catch (e) {
       console.error('Failed to parse local config');
     }
-  }
-
-  // Then try server
-  try {
-    const response = await fetch('/api/config');
-    const data = await response.json();
-    if (data && Object.keys(data).length > 0) {
-      const merged = { ...DEFAULT_CONFIG, ...data };
-      localStorage.setItem(CONFIG_KEY, JSON.stringify(merged));
-      return merged;
-    }
-  } catch (e) {
-    console.error('Failed to load config from server:', e);
   }
 
   return { ...DEFAULT_CONFIG };
