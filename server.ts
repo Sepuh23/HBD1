@@ -24,14 +24,21 @@ app.use(express.json({ limit: '50mb' }));
 // Setup Multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    if (!fs.existsSync(UPLOADS_DIR)) {
+      fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    }
     cb(null, UPLOADS_DIR);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
+    const ext = path.extname(file.originalname);
+    cb(null, `upload-${uniqueSuffix}${ext}`);
   }
 });
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit
+});
 
 // API: Get Config
 app.get("/api/config", (req, res) => {
@@ -62,14 +69,25 @@ app.post("/api/config", (req, res) => {
 });
 
 // API: Upload Files
-app.post("/api/upload", upload.single("file"), (req, res) => {
-  if (!req.file) {
-    console.warn("Upload attempt with no file");
-    return res.status(400).json({ error: "No file uploaded" });
-  }
-  const fileUrl = `/uploads/${req.file.filename}`;
-  console.log(`File uploaded successfully: ${req.file.originalname} -> ${fileUrl}`);
-  res.json({ url: fileUrl });
+app.post("/api/upload", (req, res) => {
+  upload.single("file")(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      console.error("Multer Error:", err);
+      return res.status(400).json({ error: `File upload error: ${err.message}` });
+    } else if (err) {
+      console.error("Unknown Upload Error:", err);
+      return res.status(500).json({ error: "Internal server error during upload" });
+    }
+
+    if (!req.file) {
+      console.warn("Upload attempt with no file");
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+    
+    const fileUrl = `/uploads/${req.file.filename}`;
+    console.log(`File uploaded successfully: ${req.file.originalname} -> ${fileUrl}`);
+    res.json({ url: fileUrl });
+  });
 });
 
 // Vite Middleware setup

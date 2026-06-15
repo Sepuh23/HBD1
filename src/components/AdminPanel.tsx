@@ -49,7 +49,7 @@ export default function AdminPanel() {
     }));
   };
 
-  const handleAddTrack = () => {
+  const handleAddTrack = async () => {
     if (!newTrackTitle || !newTrackSrc) {
       alert('Please fill out at least song title and mp3 stream link.');
       return;
@@ -63,7 +63,9 @@ export default function AdminPanel() {
     };
 
     const updatedPlaylist = [...config.playlist, newTrack];
-    updateConfigField('playlist', updatedPlaylist);
+    const updatedConfig = { ...config, playlist: updatedPlaylist };
+    setConfig(updatedConfig);
+    await saveConfig(updatedConfig);
 
     // Clear inputs
     setNewTrackTitle('');
@@ -78,7 +80,9 @@ export default function AdminPanel() {
       return;
     }
     const updatedPlaylist = config.playlist.filter(t => t.id !== id);
-    updateConfigField('playlist', updatedPlaylist);
+    const updatedConfig = { ...config, playlist: updatedPlaylist };
+    setConfig(updatedConfig);
+    await saveConfig(updatedConfig);
   };
 
   return (
@@ -351,7 +355,11 @@ export default function AdminPanel() {
                               if (file) {
                                 try {
                                   const url = await uploadFile(file);
-                                  updateConfigField('collageImage1', url);
+                                  const updated = { ...config, collageImage1: url };
+                                  setConfig(updated);
+                                  await saveConfig(updated);
+                                  setIsSaved(true);
+                                  setTimeout(() => setIsSaved(false), 2000);
                                 } catch (err) {
                                   console.error('Upload failed:', err);
                                   alert('Failed to upload image to server');
@@ -404,7 +412,11 @@ export default function AdminPanel() {
                               if (file) {
                                 try {
                                   const url = await uploadFile(file);
-                                  updateConfigField('collageImage2', url);
+                                  const updated = { ...config, collageImage2: url };
+                                  setConfig(updated);
+                                  await saveConfig(updated);
+                                  setIsSaved(true);
+                                  setTimeout(() => setIsSaved(false), 2000);
                                 } catch (err) {
                                   console.error('Upload failed:', err);
                                   alert('Failed to upload image to server');
@@ -457,7 +469,11 @@ export default function AdminPanel() {
                               if (file) {
                                 try {
                                   const url = await uploadFile(file);
-                                  updateConfigField('collageImage3', url);
+                                  const updated = { ...config, collageImage3: url };
+                                  setConfig(updated);
+                                  await saveConfig(updated);
+                                  setIsSaved(true);
+                                  setTimeout(() => setIsSaved(false), 2000);
                                 } catch (err) {
                                   console.error('Upload failed:', err);
                                   alert('Failed to upload image to server');
@@ -690,7 +706,11 @@ export default function AdminPanel() {
                 <PhotoGallery 
                   isAdmin={true} 
                   items={config.gallery || []} 
-                  onUpdate={(newGallery) => updateConfigField('gallery', newGallery)}
+                  onUpdate={async (newGallery) => {
+                    const updated = { ...config, gallery: newGallery };
+                    setConfig(updated);
+                    await saveConfig(updated);
+                  }}
                 />
               </div>
             </div>

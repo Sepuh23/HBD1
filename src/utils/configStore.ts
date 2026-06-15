@@ -94,7 +94,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   ]
 };
 
-const CONFIG_KEY = 'romantic-birthday-config-v3';
+const CONFIG_KEY = 'romantic-birthday-config-v4';
 
 export async function loadConfig(): Promise<AppConfig> {
   // Always try server first for the most up-to-date config
@@ -103,8 +103,8 @@ export async function loadConfig(): Promise<AppConfig> {
     if (response.ok) {
       const data = await response.json();
       if (data && Object.keys(data).length > 0) {
+        console.log('Loaded config from server');
         const merged = { ...DEFAULT_CONFIG, ...data };
-        // Sync to localStorage as backup
         localStorage.setItem(CONFIG_KEY, JSON.stringify(merged));
         return merged;
       }
@@ -118,12 +118,14 @@ export async function loadConfig(): Promise<AppConfig> {
   if (local) {
     try {
       const parsed = JSON.parse(local);
+      console.log('Loaded config from local storage');
       return { ...DEFAULT_CONFIG, ...parsed };
     } catch (e) {
       console.warn('Failed to parse local config');
     }
   }
 
+  console.log('Using default hardcoded config');
   return { ...DEFAULT_CONFIG };
 }
 
@@ -140,10 +142,12 @@ export async function saveConfig(cfg: AppConfig): Promise<void> {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to save to server');
+      const errorText = await response.text();
+      throw new Error(`Failed to save to server: ${errorText}`);
     }
+    console.log('Successfully saved to server');
   } catch (e) {
-    console.error('Server save failed:', e);
-    // We don't throw here to avoid blocking the UI, but it's logged
+    console.error('Server save error:', e);
+    throw e;
   }
 }

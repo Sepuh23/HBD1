@@ -52,11 +52,7 @@ export default function App() {
     }
   }, [isAdminMode, isLoaded]);
 
-  const handleIntroComplete = async (name: string) => {
-    if (config) {
-      const updatedConfig = { ...config, partnerName: name };
-      await saveConfig(updatedConfig);
-    }
+  const handleIntroComplete = (name: string) => {
     setPartnerName(name);
     setShowIntro(false);
     setIsMusicOpen(true);
