@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Upload, Image as ImageIcon, Heart, Sparkles, Trash2 } from 'lucide-react';
 import { GalleryItem } from '../types';
+import { uploadFile } from '../utils/fileUpload';
 
 const DEFAULT_GALLERY: GalleryItem[] = [
   {
@@ -131,67 +132,47 @@ function PolaroidCard({
 
 interface PhotoGalleryProps {
   isAdmin?: boolean;
+  items: GalleryItem[];
+  onUpdate: (items: GalleryItem[]) => void;
 }
 
-export default function PhotoGallery({ isAdmin = false }: PhotoGalleryProps) {
-  const [items, setItems] = useState<GalleryItem[]>([]);
+export default function PhotoGallery({ isAdmin = false, items, onUpdate }: PhotoGalleryProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Load photos from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('romantic-surprise-gallery');
-    if (saved) {
-      try {
-        setItems(JSON.parse(saved));
-      } catch (e) {
-        setItems(DEFAULT_GALLERY);
-      }
-    } else {
-      setItems(DEFAULT_GALLERY);
-    }
-  }, []);
-
-  const saveToStorage = (updatedList: GalleryItem[]) => {
-    setItems(updatedList);
-    localStorage.setItem('romantic-surprise-gallery', JSON.stringify(updatedList));
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file: any) => {
-      // Validate file is image
-      if (!file.type.startsWith('image/')) return;
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        const newItem: GalleryItem = {
+    const newItems: GalleryItem[] = [];
+    for (const file of Array.from(files) as File[]) {
+      if (!file.type.startsWith('image/')) continue;
+      try {
+        const url = await uploadFile(file);
+        newItems.push({
           id: `g-custom-${Date.now()}-${Math.random()}`,
           title: 'precious item',
-          src: base64,
+          src: url,
           isUserUploaded: true,
-        };
-        const newList = [...items, newItem];
-        saveToStorage(newList);
-      };
-      reader.readAsDataURL(file as Blob);
-    });
+        });
+      } catch (err) {
+        console.error('Photo upload failed:', err);
+      }
+    }
+    onUpdate([...items, ...newItems]);
   };
 
   const handleDelete = (id: string) => {
     const newList = items.filter((x) => x.id !== id);
-    saveToStorage(newList);
+    onUpdate(newList);
   };
 
   const handleUpdateTitle = (id: string, text: string) => {
     const newList = items.map((x) => (x.id === id ? { ...x, title: text } : x));
-    saveToStorage(newList);
+    onUpdate(newList);
   };
 
   const resetGallery = () => {
-    saveToStorage(DEFAULT_GALLERY);
+    onUpdate([]); // Parent can handle resetting to default if empty
   };
 
   return (

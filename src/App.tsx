@@ -12,11 +12,20 @@ import AdminPanel from './components/AdminPanel';
 import { loadConfig, saveConfig } from './utils/configStore';
 
 export default function App() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
-  const [partnerName, setPartnerName] = useState(() => {
-    const config = loadConfig();
-    return config.partnerName || 'Cintaku';
-  });
+  const [partnerName, setPartnerName] = useState('Cintaku');
+  const [config, setConfig] = useState<any>(null);
+
+  useEffect(() => {
+    async function init() {
+      const cfg = await loadConfig();
+      setConfig(cfg);
+      setPartnerName(cfg.partnerName || 'Cintaku');
+      setIsLoaded(true);
+    }
+    init();
+  }, []);
 
   const [isAdminMode, setIsAdminMode] = useState(() => {
     const hash = window.location.hash;
@@ -34,10 +43,11 @@ export default function App() {
 
   const [isMusicOpen, setIsMusicOpen] = useState(false);
 
-  const handleIntroComplete = (name: string) => {
-    const config = loadConfig();
-    config.partnerName = name;
-    saveConfig(config);
+  const handleIntroComplete = async (name: string) => {
+    if (config) {
+      const updatedConfig = { ...config, partnerName: name };
+      await saveConfig(updatedConfig);
+    }
     setPartnerName(name);
     setShowIntro(false);
     setIsMusicOpen(true);
@@ -45,6 +55,10 @@ export default function App() {
 
   if (isAdminMode) {
     return <AdminPanel />;
+  }
+
+  if (!isLoaded) {
+    return <div className="min-h-screen bg-romantic-cream flex items-center justify-center font-serif text-romantic-dark">Preparing your surprise...</div>;
   }
 
   return (
@@ -59,23 +73,26 @@ export default function App() {
 
           {/* Core scroll segments */}
           <main className="relative z-10 w-full overflow-hidden">
-            <Hero partnerName={partnerName} onOpenMusic={() => setIsMusicOpen(true)} />
-            <MessageCard partnerName={partnerName} />
+            <Hero partnerName={partnerName} onOpenMusic={() => setIsMusicOpen(true)} config={config} />
+            <MessageCard partnerName={partnerName} config={config} />
             <Reasons />
             <VirtualGarden />
-            <PhotoGallery isAdmin={false} />
-            <Finale />
+            <PhotoGallery isAdmin={false} items={config.gallery || []} onUpdate={() => {}} />
+            <Finale config={config} />
           </main>
         </div>
       )}
 
       {/* Floated beautiful state-synced audio companion */}
-      <MusicPlayer 
-        autoPlay={true} 
-        isOpen={isMusicOpen} 
-        onOpenChange={setIsMusicOpen} 
-        hidden={showIntro}
-      />
+      {config && (
+        <MusicPlayer 
+          autoPlay={true} 
+          isOpen={isMusicOpen} 
+          onOpenChange={setIsMusicOpen} 
+          hidden={showIntro}
+          config={config}
+        />
+      )}
     </div>
   );
 }

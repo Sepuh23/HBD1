@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Heart } from 'lucide-react';
-import { loadConfig } from '../utils/configStore';
 
 interface Confetti {
   id: number;
@@ -17,8 +16,11 @@ interface Confetti {
 
 const CELEBRATE_EMOJIS = ['🌸', '💖', '✨', '🌺', '🌹', '🍬', '🌷', '🎈', '🎉', '🎁', '🎀', '💘', '💮'];
 
-export default function Finale() {
-  const config = loadConfig();
+interface FinaleProps {
+  config: any;
+}
+
+export default function Finale({ config }: FinaleProps) {
   const [confettis, setConfettis] = useState<Confetti[]>([]);
   const animationFrameId = useRef<number | null>(null);
 

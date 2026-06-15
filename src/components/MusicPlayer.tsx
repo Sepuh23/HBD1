@@ -2,8 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Play, Pause, SkipForward, SkipBack, Volume2, Music, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Track } from '../types';
-import { loadConfig } from '../utils/configStore';
-import { getAsset } from '../utils/assetStore';
+import { AppConfig } from '../utils/configStore';
 
 const DEFAULT_FALLBACK_PLAYLIST: Track[] = [
   {
@@ -34,10 +33,10 @@ interface MusicPlayerProps {
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   hidden?: boolean;
+  config: AppConfig;
 }
 
-export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpenChange, hidden }: MusicPlayerProps) {
-  const config = loadConfig();
+export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpenChange, hidden, config }: MusicPlayerProps) {
   const playlist = config.playlist && config.playlist.length > 0 ? config.playlist : DEFAULT_FALLBACK_PLAYLIST;
 
   const [internalIsOpen, setInternalIsOpen] = useState(false);
@@ -88,28 +87,7 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
 
   // Handle track source resolution
   useEffect(() => {
-    let objectUrl = '';
-    const resolve = async () => {
-      if (currentTrack.src.startsWith('local-db:')) {
-        const key = currentTrack.src.replace('local-db:', '');
-        const blob = await getAsset(key);
-        if (blob instanceof Blob) {
-          objectUrl = URL.createObjectURL(blob);
-          setResolvedSrc(objectUrl);
-        } else if (typeof blob === 'string') {
-          setResolvedSrc(blob);
-        } else {
-          console.error('Local asset not found:', key);
-          setResolvedSrc(null);
-        }
-      } else {
-        setResolvedSrc(currentTrack.src || null);
-      }
-    };
-    resolve();
-    return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
+    setResolvedSrc(currentTrack.src || null);
   }, [currentTrack.src]);
 
   // Audio elements event listeners & track loading

@@ -2,11 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Save, Music, Image as ImageIcon, FileText, ArrowLeft, RefreshCw, Plus, Trash2, Check, Sparkles } from 'lucide-react';
 import { loadConfig, saveConfig, AppConfig, DEFAULT_CONFIG } from '../utils/configStore';
-import { storeAsset, deleteAsset } from '../utils/assetStore';
+import { uploadFile } from '../utils/fileUpload';
 import PhotoGallery from './PhotoGallery';
 
 export default function AdminPanel() {
-  const [config, setConfig] = useState<AppConfig>(loadConfig);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [config, setConfig] = useState<AppConfig>(DEFAULT_CONFIG);
+  
+  useEffect(() => {
+    async function init() {
+      const cfg = await loadConfig();
+      setConfig(cfg);
+      setIsLoaded(true);
+    }
+    init();
+  }, []);
   const [activeTab, setActiveTab] = useState<'text' | 'music' | 'gallery'>('text');
   const [isSaved, setIsSaved] = useState(false);
 
@@ -16,17 +26,17 @@ export default function AdminPanel() {
   const [newTrackSrc, setNewTrackSrc] = useState('');
   const [newTrackCover, setNewTrackCover] = useState('');
 
-  const handleSave = () => {
-    saveConfig(config);
+  const handleSave = async () => {
+    await saveConfig(config);
     // Sync partnerName across systems
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };
 
-  const handleResetDefaults = () => {
+  const handleResetDefaults = async () => {
     if (window.confirm('Are you sure you want to reset all customized text and playlist back to the default settings?')) {
       setConfig({ ...DEFAULT_CONFIG });
-      saveConfig(DEFAULT_CONFIG);
+      await saveConfig(DEFAULT_CONFIG);
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
     }
@@ -67,11 +77,6 @@ export default function AdminPanel() {
       alert('You should have at least one song in your musical playlist!');
       return;
     }
-    const track = config.playlist.find(t => t.id === id);
-    if (track?.src.startsWith('local-db:')) {
-      const key = track.src.replace('local-db:', '');
-      await deleteAsset(key).catch(console.error);
-    }
     const updatedPlaylist = config.playlist.filter(t => t.id !== id);
     updateConfigField('playlist', updatedPlaylist);
   };
@@ -85,6 +90,10 @@ export default function AdminPanel() {
       {/* Admin Header Navbar */}
       <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md border-b border-romantic-blush/20 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
+          {!isLoaded ? (
+             <div className="text-romantic-dark font-medium">Loading settings...</div>
+          ) : (
+            <>
           <div className="flex items-center gap-3">
             <a
               href="#"
@@ -116,6 +125,8 @@ export default function AdminPanel() {
               {isSaved ? 'Saved & Live!' : 'Save changes'}
             </button>
           </div>
+          </>
+          )}
         </div>
       </header>
 
@@ -335,12 +346,16 @@ export default function AdminPanel() {
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const r = new FileReader();
-                                r.onload = () => updateConfigField('collageImage1', r.result);
-                                r.readAsDataURL(file);
+                                try {
+                                  const url = await uploadFile(file);
+                                  updateConfigField('collageImage1', url);
+                                } catch (err) {
+                                  console.error('Upload failed:', err);
+                                  alert('Failed to upload image to server');
+                                }
                               }
                             }}
                             className="w-full text-xs cursor-pointer text-romantic-dark/70"
@@ -384,12 +399,16 @@ export default function AdminPanel() {
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const r = new FileReader();
-                                r.onload = () => updateConfigField('collageImage2', r.result);
-                                r.readAsDataURL(file);
+                                try {
+                                  const url = await uploadFile(file);
+                                  updateConfigField('collageImage2', url);
+                                } catch (err) {
+                                  console.error('Upload failed:', err);
+                                  alert('Failed to upload image to server');
+                                }
                               }
                             }}
                             className="w-full text-xs cursor-pointer text-romantic-dark/70"
@@ -433,12 +452,16 @@ export default function AdminPanel() {
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const r = new FileReader();
-                                r.onload = () => updateConfigField('collageImage3', r.result);
-                                r.readAsDataURL(file);
+                                try {
+                                  const url = await uploadFile(file);
+                                  updateConfigField('collageImage3', url);
+                                } catch (err) {
+                                  console.error('Upload failed:', err);
+                                  alert('Failed to upload image to server');
+                                }
                               }
                             }}
                             className="w-full text-xs cursor-pointer text-romantic-dark/70"
@@ -611,18 +634,17 @@ export default function AdminPanel() {
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          if (file.size > 15 * 1024 * 1024) {
-                            alert("File too large! Max 15MB.");
+                          if (file.size > 20 * 1024 * 1024) {
+                            alert("File too large! Max 20MB.");
                             return;
                           }
-                          const key = `audio-${Date.now()}`;
                           try {
-                            await storeAsset(key, file);
-                            setNewTrackSrc(`local-db:${key}`);
+                            const url = await uploadFile(file);
+                            setNewTrackSrc(url);
                             if (!newTrackTitle) setNewTrackTitle(file.name.replace(/\.[^/.]+$/, ""));
                           } catch (err) {
-                            console.error('Failed to store audio:', err);
-                            alert('Failed to store file. IndexedDB might be full or blocked.');
+                            console.error('Failed to upload audio:', err);
+                            alert('Failed to upload file to server.');
                           }
                         }
                       }}
@@ -665,7 +687,11 @@ export default function AdminPanel() {
 
               {/* Direct inline PhotoGallery rendered with isAdmin={true} */}
               <div className="border border-romantic-blush/20 rounded-3xl overflow-hidden bg-romantic-cream/10 p-4">
-                <PhotoGallery isAdmin={true} />
+                <PhotoGallery 
+                  isAdmin={true} 
+                  items={config.gallery || []} 
+                  onUpdate={(newGallery) => updateConfigField('gallery', newGallery)}
+                />
               </div>
             </div>
           )}

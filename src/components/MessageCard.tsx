@@ -1,26 +1,24 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Heart } from 'lucide-react';
-import { loadConfig } from '../utils/configStore';
 import MemoryCollage from './MemoryCollage';
 
 interface MessageCardProps {
   partnerName: string;
+  config: any;
 }
 
-export default function MessageCard({ partnerName }: MessageCardProps) {
-  const config = loadConfig();
+export default function MessageCard({ partnerName, config }: MessageCardProps) {
+  const labelText = config?.messageCardLabel || 'from the bottom of my heart';
+  const title1 = config?.messageCardTitle1 || 'Today is the day';
+  const title2 = config?.messageCardTitle2 || 'the world became';
+  const title3 = config?.messageCardTitle3 || 'more beautiful.';
   
-  const labelText = config.messageCardLabel || 'from the bottom of my heart';
-  const title1 = config.messageCardTitle1 || 'Today is the day';
-  const title2 = config.messageCardTitle2 || 'the world became';
-  const title3 = config.messageCardTitle3 || 'more beautiful.';
+  const paragraph1 = config?.messageParagraph1 || 'The day you were born is the most precious event to ever occur in this universe — and the absolute best thing that ever happened to my life. Every single memory I spend beside you is a gift I hold close to my chest and never take for granted.';
+  const paragraph2 = config?.messageParagraph2 || 'You make normal, routine days feel like magical fairytales, and magical days feel like dreams I never want to wake up from. Your gentle kindness, your beautiful radiant smile, and the warmth in your soul light up my dark evenings and keep me going.';
+  const paragraph3 = config?.messageParagraph3 || 'These virtual flowers are a tiny token of the immense, boundless love I carry for you. No bouquet in the world is big enough, no song sweet enough, no poem long enough to write how much you mean to me — but please know that every single heartbeat of mine belongs entirely to you.';
   
-  const paragraph1 = config.messageParagraph1 || 'The day you were born is the most precious event to ever occur in this universe — and the absolute best thing that ever happened to my life. Every single memory I spend beside you is a gift I hold close to my chest and never take for granted.';
-  const paragraph2 = config.messageParagraph2 || 'You make normal, routine days feel like magical fairytales, and magical days feel like dreams I never want to wake up from. Your gentle kindness, your beautiful radiant smile, and the warmth in your soul light up my dark evenings and keep me going.';
-  const paragraph3 = config.messageParagraph3 || 'These virtual flowers are a tiny token of the immense, boundless love I carry for you. No bouquet in the world is big enough, no song sweet enough, no poem long enough to write how much you mean to me — but please know that every single heartbeat of mine belongs entirely to you.';
-  
-  const signatureText = config.messageSignature || '— Yours, always & forever 🌹';
+  const signatureText = config?.messageSignature || '— Yours, always & forever 🌹';
 
   return (
     <section id="message-area" className="relative py-24 px-6 overflow-hidden bg-white/30">
@@ -85,7 +83,7 @@ export default function MessageCard({ partnerName }: MessageCardProps) {
         </motion.div>
 
         {/* Dynamic customizable Memory Collage of the celebrated person */}
-        <MemoryCollage />
+        <MemoryCollage config={config} />
 
       </div>
     </section>

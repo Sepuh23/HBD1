@@ -1,18 +1,17 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown, Sparkle } from 'lucide-react';
-import { loadConfig } from '../utils/configStore';
 
 interface HeroProps {
   partnerName: string;
   onOpenMusic: () => void;
+  config: any;
 }
 
-export default function Hero({ partnerName, onOpenMusic }: HeroProps) {
-  const config = loadConfig();
-  const displayName = config.partnerName || partnerName;
-  const titleLine1 = config.heroTitleLine1 || 'Happy Birthday,';
-  const subtitleText = config.heroSubtitle || 'Today, the entire universe is celebrating the day you were born to bring light, color, and laughter into my world. You are everything to me.';
+export default function Hero({ partnerName, onOpenMusic, config }: HeroProps) {
+  const displayName = config?.partnerName || partnerName;
+  const titleLine1 = config?.heroTitleLine1 || 'Happy Birthday,';
+  const subtitleText = config?.heroSubtitle || 'Today, the entire universe is celebrating the day you were born to bring light, color, and laughter into my world. You are everything to me.';
 
   const handleScrollDown = () => {
     const nextElem = document.getElementById('message-area');

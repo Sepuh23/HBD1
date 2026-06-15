@@ -27,8 +27,8 @@ export interface AppConfig {
   finaleTitle2: string;
   finaleBody: string;
   finaleSignature: string;
-
   playlist: Track[];
+  gallery: GalleryItem[];
 }
 
 export const DEFAULT_PLAYLIST: Track[] = [
@@ -83,22 +83,53 @@ export const DEFAULT_CONFIG: AppConfig = {
   finaleBody: 'On this beautiful day that belongs entirely to you — I want you to know that loving you is the greatest adventure of my life. Every year spent beside you is a gift I treasure. Every laugh we share, every quiet heartbeat of yours. Here is to celebrating you, today and every single day after. Happy Birthday. 🌸',
   finaleSignature: 'Made with endless love, just for you',
 
-  playlist: DEFAULT_PLAYLIST
+  playlist: DEFAULT_PLAYLIST,
+  gallery: [
+    {
+      id: 'g-1',
+      title: 'you',
+      src: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&q=80&w=600',
+    },
+    {
+      id: 'g-2',
+      title: 'are',
+      src: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&q=80&w=600',
+    },
+    {
+      id: 'g-3',
+      title: 'so',
+      src: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80&w=600',
+    },
+    {
+      id: 'g-4',
+      title: 'beautiful',
+      src: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&q=80&w=600',
+    }
+  ]
 };
 
 const CONFIG_KEY = 'romantic-birthday-config-v1';
 
-export function loadConfig(): AppConfig {
-  const data = localStorage.getItem(CONFIG_KEY);
-  if (!data) return { ...DEFAULT_CONFIG };
+export async function loadConfig(): Promise<AppConfig> {
   try {
-    const parsed = JSON.parse(data);
-    return { ...DEFAULT_CONFIG, ...parsed };
+    const response = await fetch('/api/config');
+    const data = await response.json();
+    if (Object.keys(data).length === 0) return { ...DEFAULT_CONFIG };
+    return { ...DEFAULT_CONFIG, ...data };
   } catch (e) {
+    console.error('Failed to load config from server:', e);
     return { ...DEFAULT_CONFIG };
   }
 }
 
-export function saveConfig(cfg: AppConfig) {
-  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+export async function saveConfig(cfg: AppConfig): Promise<void> {
+  try {
+    await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cfg)
+    });
+  } catch (e) {
+    console.error('Failed to save config to server:', e);
+  }
 }

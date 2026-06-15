@@ -1,18 +1,15 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Sparkles, Heart } from 'lucide-react';
-import { loadConfig } from '../utils/configStore';
 
-export default function MemoryCollage() {
-  const config = loadConfig();
-
+export default function MemoryCollage({ config }: { config: any }) {
   // Load customizable properties
-  const img1 = config.collageImage1 || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600';
-  const cap1 = config.collageCaption1 || 'Your warm gaze ✨';
-  const img2 = config.collageImage2 || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=600';
-  const cap2 = config.collageCaption2 || 'Most precious smile 🥰';
-  const img3 = config.collageImage3 || 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=600';
-  const cap3 = config.collageCaption3 || 'Perfect laughter 💖';
+  const img1 = config?.collageImage1 || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600';
+  const cap1 = config?.collageCaption1 || 'Your warm gaze ✨';
+  const img2 = config?.collageImage2 || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=600';
+  const cap2 = config?.collageCaption2 || 'Most precious smile 🥰';
+  const img3 = config?.collageImage3 || 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=600';
+  const cap3 = config?.collageCaption3 || 'Perfect laughter 💖';
 
   const cards = [
     {
