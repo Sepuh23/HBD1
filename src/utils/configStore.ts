@@ -97,10 +97,23 @@ export const DEFAULT_CONFIG: AppConfig = {
 const CONFIG_KEY = 'romantic-birthday-config-v3';
 
 export async function loadConfig(): Promise<AppConfig> {
-  // On Vercel, filesystem persistence doesn't work. 
-  // We prioritize the hardcoded defaults in the code.
-  
-  // Optional: Try local storage for browser-only persistence (client side only)
+  // Always try server first for the most up-to-date config
+  try {
+    const response = await fetch('/api/config');
+    if (response.ok) {
+      const data = await response.json();
+      if (data && Object.keys(data).length > 0) {
+        const merged = { ...DEFAULT_CONFIG, ...data };
+        // Sync to localStorage as backup
+        localStorage.setItem(CONFIG_KEY, JSON.stringify(merged));
+        return merged;
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to load config from server, falling back to local storage:', e);
+  }
+
+  // Fallback to localStorage if server fails or is unreachable
   const local = localStorage.getItem(CONFIG_KEY);
   if (local) {
     try {
@@ -111,24 +124,26 @@ export async function loadConfig(): Promise<AppConfig> {
     }
   }
 
-  // We skip the server fetch if we want the hardcoded code values to be the "source of truth"
-  // because the server config on Vercel is temporary and gets deleted.
   return { ...DEFAULT_CONFIG };
 }
 
 export async function saveConfig(cfg: AppConfig): Promise<void> {
-  // Save to localStorage so the user sees changes locally immediately
+  // Save to localStorage immediately for fast UI feedback
   localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
 
-  // We still try to save to server for development environments, 
-  // but we know it won't persist on Vercel.
+  // Save to server filesystem persistence
   try {
-    await fetch('/api/config', {
+    const response = await fetch('/api/config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cfg)
     });
+    
+    if (!response.ok) {
+      throw new Error('Failed to save to server');
+    }
   } catch (e) {
-    console.warn('Server save failed (expected on Vercel):', e);
+    console.error('Server save failed:', e);
+    // We don't throw here to avoid blocking the UI, but it's logged
   }
 }

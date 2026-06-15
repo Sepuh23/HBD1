@@ -38,20 +38,25 @@ app.get("/api/config", (req, res) => {
   if (fs.existsSync(CONFIG_PATH)) {
     try {
       const data = fs.readFileSync(CONFIG_PATH, "utf-8");
+      console.log("Config loaded from filesystem");
       return res.json(JSON.parse(data));
     } catch (e) {
+      console.error("Failed to read config:", e);
       return res.status(500).json({ error: "Failed to read config" });
     }
   }
-  res.json({}); // Return empty if doesn't exist
+  console.log("No config found, returning empty object");
+  res.json({}); 
 });
 
 // API: Save Config
 app.post("/api/config", (req, res) => {
   try {
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(req.body, null, 2));
+    console.log("Config saved successfully to:", CONFIG_PATH);
     res.json({ success: true });
   } catch (e) {
+    console.error("Failed to save config:", e);
     res.status(500).json({ error: "Failed to save config" });
   }
 });
@@ -59,9 +64,11 @@ app.post("/api/config", (req, res) => {
 // API: Upload Files
 app.post("/api/upload", upload.single("file"), (req, res) => {
   if (!req.file) {
+    console.warn("Upload attempt with no file");
     return res.status(400).json({ error: "No file uploaded" });
   }
   const fileUrl = `/uploads/${req.file.filename}`;
+  console.log(`File uploaded successfully: ${req.file.originalname} -> ${fileUrl}`);
   res.json({ url: fileUrl });
 });
 
