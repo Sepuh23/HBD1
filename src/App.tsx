@@ -43,6 +43,15 @@ export default function App() {
 
   const [isMusicOpen, setIsMusicOpen] = useState(false);
 
+  useEffect(() => {
+    if (!isAdminMode && isLoaded) {
+      loadConfig().then(cfg => {
+        setConfig(cfg);
+        setPartnerName(cfg.partnerName || 'Cintaku');
+      });
+    }
+  }, [isAdminMode, isLoaded]);
+
   const handleIntroComplete = async (name: string) => {
     if (config) {
       const updatedConfig = { ...config, partnerName: name };

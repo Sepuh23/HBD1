@@ -33,32 +33,18 @@ export interface AppConfig {
 
 export const DEFAULT_PLAYLIST: Track[] = [
   {
-    id: 'track-1',
-    title: 'Semua Aku Dirayakan (Classical Piano Op. 9)',
-    artist: 'Chopin - Romantic Tribute',
-    src: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Frederic_Chopin_-_Nocturne_Op_9_No_2_E_flat_Major.mp3',
+    id: 'track-custom-1',
+    title: 'halo',
+    artist: 'halo',
+    src: 'https://example.com/audio.mp3', // This is just a placeholder from their screenshot, they'll likely update it.
     cover: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&q=80&w=260',
-  },
-  {
-    id: 'track-2',
-    title: 'Gymnopédie of the Soul',
-    artist: 'Erik Satie - Emotional Mood',
-    src: 'https://upload.wikimedia.org/wikipedia/commons/e/ea/Erik_Satie_-_Gymnop%C3%A9die_No._1.mp3',
-    cover: 'https://images.unsplash.com/photo-1494905998402-395d579af36f?auto=format&fit=crop&q=80&w=260',
-  },
-  {
-    id: 'track-3',
-    title: 'Love Moonlight Sonata',
-    artist: 'Beethoven - Evening Serenade',
-    src: 'https://upload.wikimedia.org/wikipedia/commons/a/ae/Beethoven_Moonlight_Sonata_MCG.mp3',
-    cover: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=260',
   }
 ];
 
 export const DEFAULT_CONFIG: AppConfig = {
-  partnerName: 'Cintaku',
-  heroTitleLine1: 'Happy Birthday,',
-  heroTitleLine2: 'My Everything',
+  partnerName: 'cintaku',
+  heroTitleLine1: 'HAPPY BIRTHDAY,',
+  heroTitleLine2: '',
   heroSubtitle: 'Today, the entire universe is celebrating the day you were born to bring light, color, and laughter into my world. You are everything to me.',
   
   messageCardLabel: 'from the bottom of my heart',
@@ -108,21 +94,40 @@ export const DEFAULT_CONFIG: AppConfig = {
   ]
 };
 
-const CONFIG_KEY = 'romantic-birthday-config-v1';
+const CONFIG_KEY = 'romantic-birthday-config-v2';
 
 export async function loadConfig(): Promise<AppConfig> {
+  // First try localStorage for immediate local feedback
+  const local = localStorage.getItem(CONFIG_KEY);
+  if (local) {
+    try {
+      return JSON.parse(local);
+    } catch (e) {
+      console.error('Failed to parse local config');
+    }
+  }
+
+  // Then try server
   try {
     const response = await fetch('/api/config');
     const data = await response.json();
-    if (Object.keys(data).length === 0) return { ...DEFAULT_CONFIG };
-    return { ...DEFAULT_CONFIG, ...data };
+    if (data && Object.keys(data).length > 0) {
+      const merged = { ...DEFAULT_CONFIG, ...data };
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(merged));
+      return merged;
+    }
   } catch (e) {
     console.error('Failed to load config from server:', e);
-    return { ...DEFAULT_CONFIG };
   }
+
+  return { ...DEFAULT_CONFIG };
 }
 
 export async function saveConfig(cfg: AppConfig): Promise<void> {
+  // Save to localStorage immediately
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+
+  // Try to save to server
   try {
     await fetch('/api/config', {
       method: 'POST',
