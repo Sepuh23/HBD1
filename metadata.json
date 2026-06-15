@@ -1,0 +1,6 @@
+{
+  "name": "Happy Birthday Cintaku",
+  "description": "A beautiful animated birthday website containing custom message cards, falling petals, high performance canvas particles, virtual garden, photo placeholders, and a romantic background audio system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
