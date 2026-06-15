@@ -110,7 +110,6 @@ export default function Hero({ partnerName, onOpenMusic }: HeroProps) {
                 />
               ))}
               <circle cx="50" cy="50" r="14" fill="#faf6f0" className="shadow-sm stroke-romantic-rose/20 stroke-1" />
-              <text x="50" y="55.5" fontSize="14" textAnchor="middle" dominantBaseline="middle" className="pointer-events-none select-none">🎉</text>
             </g>
           </svg>
         </motion.div>
