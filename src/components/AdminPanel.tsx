@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, Music, Image as ImageIcon, FileText, ArrowLeft, RefreshCw, Plus, Trash2, Check, Sparkles } from 'lucide-react';
+import { Save, Music, Image as ImageIcon, FileText, ArrowLeft, RefreshCw, Plus, Trash2, Check, Sparkles, Camera, Smile, Pin } from 'lucide-react';
 import { loadConfig, saveConfig, AppConfig, DEFAULT_CONFIG } from '../utils/configStore';
 import { uploadFile } from '../utils/fileUpload';
 import PhotoGallery from './PhotoGallery';
@@ -17,7 +17,7 @@ export default function AdminPanel() {
     }
     init();
   }, []);
-  const [activeTab, setActiveTab] = useState<'text' | 'music' | 'gallery'>('text');
+  const [activeTab, setActiveTab] = useState<'text' | 'music' | 'gallery' | 'scrapbook'>('text');
   const [isSaved, setIsSaved] = useState(false);
 
   // Music input state
@@ -178,6 +178,16 @@ export default function AdminPanel() {
             }`}
           >
             <ImageIcon className="w-4 h-4" /> Gallery Polaroid
+          </button>
+          <button
+            onClick={() => setActiveTab('scrapbook')}
+            className={`flex-1 py-4 text-center text-sm font-semibold tracking-wider uppercase flex items-center justify-center gap-2 border-b-2 transition-all cursor-pointer ${
+              activeTab === 'scrapbook'
+                ? 'border-romantic-rose text-romantic-rose bg-romantic-rose/5'
+                : 'border-transparent text-romantic-dark/50 hover:text-romantic-rose hover:bg-romantic-rose/2'
+            }`}
+          >
+            <Camera className="w-4 h-4" /> Scrapbook 📖
           </button>
         </div>
 
@@ -712,6 +722,289 @@ export default function AdminPanel() {
                     await saveConfig(updated);
                   }}
                 />
+              </div>
+            </div>
+          )}
+
+          {/* 4. SCRAPBOOK TAB */}
+          {activeTab === 'scrapbook' && (
+            <div className="space-y-8 animate-fade-in">
+              <div className="flex items-center gap-2 mb-4">
+                <Camera className="w-5 h-5 text-romantic-rose animate-bounce" />
+                <h3 className="font-serif text-2xl text-romantic-dark border-b border-gray-100 pb-2 w-full flex justify-between items-center">
+                  <span>Manage Sweet & Funny Scrapbook 📖</span>
+                </h3>
+              </div>
+
+              <p className="text-sm text-romantic-dark/65 leading-relaxed bg-[#fdfdfc] p-4 rounded-2xl border border-romantic-blush/20 italic">
+                Halaman scrapbook berisi kumpulan foto random, momen konyol, dan kalimat manis/lucu yang bikin pacar senyum-senyum sendiri. Kamu bisa menambahkan foto, memilih stiker lucu (hati, kopi, biskuit, selotip), serta menulis pesan gokil nan manis!
+              </p>
+
+              {/* Scrapbook Section Titles */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-6 bg-romantic-cream/10 rounded-3xl border border-romantic-blush/20">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-romantic-rose mb-2">Scrapbook Section Title</label>
+                  <input
+                    type="text"
+                    value={config.scrapbookTitle || ''}
+                    onChange={(e) => updateConfigField('scrapbookTitle', e.target.value)}
+                    placeholder="e.g. Our Sweet & Funny Scrapbook 📖"
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none text-xs text-romantic-dark"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-romantic-rose mb-2">Scrapbook Description / Subtitle</label>
+                  <input
+                    type="text"
+                    value={config.scrapbookSubtitle || ''}
+                    onChange={(e) => updateConfigField('scrapbookSubtitle', e.target.value)}
+                    placeholder="e.g. Kumpulan foto random..."
+                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none text-xs text-romantic-dark"
+                  />
+                </div>
+              </div>
+
+              {/* List of Scrapbook items */}
+              <div className="space-y-6">
+                <h4 className="font-serif text-lg text-romantic-dark flex items-center gap-2">
+                  <Smile className="w-4 h-4 text-romantic-gold" /> Current Scrapbook Pages ({config.scrapbook?.length || 0})
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {(config.scrapbook || []).map((item, index) => (
+                    <div key={item.id} className="p-5 bg-white rounded-2xl border border-romantic-blush/25 shadow-sm relative space-y-4">
+                      <div className="absolute top-4 right-4 flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold px-2 py-0.5 bg-romantic-rose/10 text-romantic-rose rounded-full">
+                          Page {index + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (window.confirm('Delete this scrapbook page?')) {
+                              const updatedList = (config.scrapbook || []).filter(s => s.id !== item.id);
+                              const updated = { ...config, scrapbook: updatedList };
+                              setConfig(updated);
+                              await saveConfig(updated);
+                            }
+                          }}
+                          className="p-1 rounded bg-[#fff0f0] text-red-600 hover:bg-red-100 transition-colors cursor-pointer"
+                          title="Delete Scrapbook Page"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Photo Preview & Edit */}
+                      <div className="flex gap-4 items-start pt-2">
+                        <div className="w-24 h-24 bg-gray-50 border border-gray-100 rounded-lg overflow-hidden relative shrink-0">
+                          <img
+                            src={item.src}
+                            alt="preview"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <label className="block text-[10px] font-semibold text-romantic-dark/50 uppercase tracking-wider">Image / Photo (File or URL)</label>
+                          <input
+                            type="text"
+                            value={item.src}
+                            onChange={async (e) => {
+                              const updatedList = (config.scrapbook || []).map(s => s.id === item.id ? { ...s, src: e.target.value } : s);
+                              const updated = { ...config, scrapbook: updatedList };
+                              setConfig(updated);
+                              await saveConfig(updated);
+                            }}
+                            className="w-full px-2 py-1.5 border border-gray-200 outline-none text-[10px] font-mono text-romantic-dark rounded-md bg-gray-50"
+                          />
+                          <div className="text-[9px] text-romantic-rose font-medium">Or choose file:</div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                try {
+                                  const url = await uploadFile(file);
+                                  const updatedList = (config.scrapbook || []).map(s => s.id === item.id ? { ...s, src: url } : s);
+                                  const updated = { ...config, scrapbook: updatedList };
+                                  setConfig(updated);
+                                  await saveConfig(updated);
+                                } catch (err) {
+                                  alert('Failed to upload file');
+                                }
+                              }
+                            }}
+                            className="text-[10px] text-romantic-dark/70"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Text inputs */}
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-[10px] font-semibold uppercase tracking-wider text-romantic-dark/65 mb-1">Handwritten Polaroid Caption</label>
+                          <input
+                            type="text"
+                            value={item.caption}
+                            onChange={async (e) => {
+                              const updatedList = (config.scrapbook || []).map(s => s.id === item.id ? { ...s, caption: e.target.value } : s);
+                              const updated = { ...config, scrapbook: updatedList };
+                              setConfig(updated);
+                              await saveConfig(updated);
+                            }}
+                            placeholder="e.g. Momen Kamu Cemberut Pas Laper 😤"
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 outline-none text-xs text-romantic-dark font-sans"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-semibold uppercase tracking-wider text-romantic-dark/65 mb-1">Cute & Funny Diary Note / Story</label>
+                          <textarea
+                            rows={3}
+                            value={item.funnyNote || ''}
+                            onChange={async (e) => {
+                              const updatedList = (config.scrapbook || []).map(s => s.id === item.id ? { ...s, funnyNote: e.target.value } : s);
+                              const updated = { ...config, scrapbook: updatedList };
+                              setConfig(updated);
+                              await saveConfig(updated);
+                            }}
+                            placeholder="Tulis cerita konyol, komentar jahil tapi sweet..."
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 outline-none text-xs text-romantic-dark leading-relaxed font-sans"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-semibold uppercase tracking-wider text-romantic-dark/65 mb-1">Scrapbook Sticker Decorator</label>
+                          <select
+                            value={item.stickerType || 'tape'}
+                            onChange={async (e) => {
+                              const updatedList = (config.scrapbook || []).map(s => s.id === item.id ? { ...s, stickerType: e.target.value as any } : s);
+                              const updated = { ...config, scrapbook: updatedList };
+                              setConfig(updated);
+                              await saveConfig(updated);
+                            }}
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 outline-none text-xs text-romantic-dark bg-white font-sans"
+                          >
+                            <option value="tape">Washi Sticky Tape (Classic) 🩹</option>
+                            <option value="heart">Floating Sweet Heart ❤️</option>
+                            <option value="sparkle">Magic Yellow Sparkle ✨</option>
+                            <option value="coffee">Morning Coffee Badge ☕</option>
+                            <option value="cookie">Cutie Cookie Badge 🍪</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Add New Page Block */}
+              <div className="p-6 bg-romantic-cream/15 border border-dashed border-romantic-blush/30 rounded-3xl mt-8 space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-romantic-rose mb-2 flex items-center gap-1.5 font-sans">
+                  <Plus className="w-4 h-4" /> Add New Scrapbook Photo Slide
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-romantic-dark/65 mb-1.5">Polaroid Short Caption</label>
+                    <input
+                      type="text"
+                      id="new-sb-caption"
+                      placeholder="e.g. Lagi ngantuk berat tapi minta temenin seblak 🌶️"
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none text-xs text-romantic-dark"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-romantic-dark/65 mb-1.5">Select Sticker Style</label>
+                    <select
+                      id="new-sb-sticker"
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none text-xs text-romantic-dark bg-white"
+                    >
+                      <option value="tape">Washi Sticky Tape 🩹</option>
+                      <option value="heart">Floating Sweet Heart ❤️</option>
+                      <option value="sparkle">Magic Yellow Sparkle ✨</option>
+                      <option value="coffee">Morning Coffee Badge ☕</option>
+                      <option value="cookie">Cutie Cookie Badge 🍪</option>
+                    </select>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-romantic-dark/65 mb-1.5">Silly or Funny Diary Note</label>
+                    <textarea
+                      id="new-sb-note"
+                      rows={2}
+                      placeholder="e.g. Saking lucunya mukamu pas merengut, pengen tak cubit saking gemesnya!"
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none text-xs text-romantic-dark"
+                    />
+                  </div>
+                  <div className="sm:col-span-2 space-y-2">
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-romantic-dark/65 mb-1.5">Upload Image File OR Paste URL</label>
+                    <input
+                      type="text"
+                      id="new-sb-url"
+                      placeholder="https://images.unsplash.com/... or upload below"
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 outline-none text-xs text-romantic-dark font-mono"
+                    />
+                    <div className="text-center text-[10px] text-romantic-dark/40 italic">or choose from device</div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          try {
+                            const url = await uploadFile(file);
+                            const urlInput = document.getElementById('new-sb-url') as HTMLInputElement;
+                            if (urlInput) urlInput.value = url;
+                          } catch (err) {
+                            alert('Upload failed');
+                          }
+                        }
+                      }}
+                      className="text-xs text-romantic-dark/70"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const captionInput = document.getElementById('new-sb-caption') as HTMLInputElement;
+                    const stickerInput = document.getElementById('new-sb-sticker') as HTMLSelectElement;
+                    const noteInput = document.getElementById('new-sb-note') as HTMLTextAreaElement;
+                    const urlInput = document.getElementById('new-sb-url') as HTMLInputElement;
+
+                    const caption = captionInput?.value || '';
+                    const sticker = stickerInput?.value || 'tape';
+                    const funnyNote = noteInput?.value || '';
+                    const src = urlInput?.value || '';
+
+                    if (!caption || !src) {
+                      alert('Please provide at least a Caption and an Image (URL or uploaded file)');
+                      return;
+                    }
+
+                    const newItem = {
+                      id: `sb-${Date.now()}`,
+                      src,
+                      caption,
+                      funnyNote,
+                      stickerType: sticker as any,
+                      rotation: Math.floor(Math.random() * 8) - 4
+                    };
+
+                    const updatedScrapbook = [...(config.scrapbook || []), newItem];
+                    const updated = { ...config, scrapbook: updatedScrapbook };
+                    setConfig(updated);
+                    await saveConfig(updated);
+
+                    // Clear inputs
+                    if (captionInput) captionInput.value = '';
+                    if (noteInput) noteInput.value = '';
+                    if (urlInput) urlInput.value = '';
+                  }}
+                  className="px-5 py-2.5 bg-romantic-dark text-white text-xs font-semibold tracking-wider uppercase rounded-full hover:bg-romantic-rose hover:shadow transition-colors inline-flex items-center gap-1.5 cursor-pointer mt-4"
+                >
+                  <Plus className="w-4 h-4" /> Add Scrapbook Page
+                </button>
               </div>
             </div>
           )}

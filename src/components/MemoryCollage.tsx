@@ -2,14 +2,16 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Sparkles, Heart } from 'lucide-react';
 
-export default function MemoryCollage({ config }: { config: any }) {
+export default function MemoryCollage({ config, theme = 'cream' }: { config: any, theme?: 'cream' | 'skyblue' }) {
   // Load customizable properties
   const img1 = config?.collageImage1 || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600';
-  const cap1 = config?.collageCaption1 || 'Your warm gaze ✨';
+  const cap1 = config?.collageCaption1 || 'Tatap hangatmu ✨';
   const img2 = config?.collageImage2 || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=600';
-  const cap2 = config?.collageCaption2 || 'Most precious smile 🥰';
+  const cap2 = config?.collageCaption2 || 'Senyum paling berharga 🥰';
   const img3 = config?.collageImage3 || 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=600';
-  const cap3 = config?.collageCaption3 || 'Perfect laughter 💖';
+  const cap3 = config?.collageCaption3 || 'Tawa yang sempurna 💖';
+
+  const isSky = theme === 'skyblue';
 
   const cards = [
     {
@@ -47,10 +49,10 @@ export default function MemoryCollage({ config }: { config: any }) {
   return (
     <div className="w-full max-w-4xl mx-auto mt-14 px-4 pb-4">
       {/* Small beautiful header for collage */}
-      <div className="flex items-center justify-center gap-1.5 mb-10">
-        <Sparkles className="w-4 h-4 text-romantic-gold animate-pulse" />
-        <span className="text-xs font-serif tracking-widest text-romantic-dark/40 uppercase">memory frames of you</span>
-        <Sparkles className="w-4 h-4 text-romantic-gold animate-pulse" />
+      <div className="flex items-center justify-center gap-1.5 mb-10 block select-none">
+        <Sparkles className={`w-4 h-4 animate-pulse ${isSky ? 'text-sky-500' : 'text-romantic-gold'}`} />
+        <span className={`text-xs font-serif tracking-widest uppercase ${isSky ? 'text-sky-950/45' : 'text-romantic-dark/40'}`}>bingkai kenangan tentangmu</span>
+        <Sparkles className={`w-4 h-4 animate-pulse ${isSky ? 'text-sky-500' : 'text-romantic-gold'}`} />
       </div>
 
       {/* Grid container with responsive layouts */}
@@ -75,16 +77,24 @@ export default function MemoryCollage({ config }: { config: any }) {
               zIndex: 40,
               transition: { duration: 0.3 }
             }}
-            className={`w-[260px] sm:w-[280px] bg-white p-4 pb-6 rounded-xl shadow-[0_8px_30px_rgb(55,34,19,0.06)] border border-romantic-blush/25 relative group flex flex-col items-center select-none ${card.zIndex}`}
+            className={`w-[260px] sm:w-[280px] bg-white p-4 pb-6 rounded-xl shadow-[0_8px_30px_rgb(55,34,19,0.06)] relative group flex flex-col items-center select-none ${card.zIndex} ${
+              isSky ? 'border border-sky-200/35' : 'border border-romantic-blush/25'
+            }`}
           >
             {/* Washi Tape Accent */}
             <div 
-              className="absolute -top-3 w-16 h-5 bg-romantic-rose-light/25 backdrop-blur-[2px] border-l border-r border-dashed border-romantic-rose-light/40 shadow-sm"
+              className={`absolute -top-3 w-16 h-5 backdrop-blur-[2px] border-l border-r border-dashed shadow-sm ${
+                isSky 
+                  ? 'bg-sky-500/20 border-sky-300/40' 
+                  : 'bg-romantic-rose-light/25 border-romantic-rose-light/40'
+              }`}
               style={{ transform: `rotate(${card.tapeRotation}deg)` }}
             />
 
             {/* Photo Image Frame */}
-            <div className="w-full aspect-[4/5] rounded-lg overflow-hidden bg-romantic-cream relative shadow-inner">
+            <div className={`w-full aspect-[4/5] rounded-lg overflow-hidden relative shadow-inner ${
+              isSky ? 'bg-[#ecf5fa]' : 'bg-romantic-cream'
+            }`}>
               <img
                 src={card.src}
                 alt={card.caption}
@@ -92,18 +102,24 @@ export default function MemoryCollage({ config }: { config: any }) {
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-104"
               />
               {/* Soft elegant warm vintage overlay */}
-              <div className="absolute inset-0 bg-romantic-rose/5 pointer-events-none mix-blend-color-burn group-hover:bg-transparent transition-colors duration-500" />
+              <div className={`absolute inset-0 pointer-events-none mix-blend-color-burn group-hover:bg-transparent transition-colors duration-500 ${
+                isSky ? 'bg-sky-500/5' : 'bg-romantic-rose/5'
+              }`} />
             </div>
 
             {/* Polaroid handwritten captions */}
             <div className="mt-4 text-center px-1">
-              <p className="font-script text-lg sm:text-xl text-romantic-dark select-none leading-none truncate max-w-[240px]">
+              <p className={`font-script text-lg sm:text-xl select-none leading-none truncate max-w-[240px] ${
+                isSky ? 'text-sky-950/90' : 'text-romantic-dark'
+              }`}>
                 {card.caption}
               </p>
             </div>
             
             {/* Subtle shiny polaroid pin indicator */}
-            <div className="absolute -top-1 left-4 w-1.5 h-1.5 rounded-full bg-romantic-rose-light shadow-sm opacity-50" />
+            <div className={`absolute -top-1 left-4 w-1.5 h-1.5 rounded-full shadow-sm opacity-50 ${
+              isSky ? 'bg-sky-400' : 'bg-romantic-rose-light'
+            }`} />
           </motion.div>
         ))}
 

@@ -34,9 +34,10 @@ interface MusicPlayerProps {
   onOpenChange?: (open: boolean) => void;
   hidden?: boolean;
   config: AppConfig;
+  theme?: 'cream' | 'skyblue';
 }
 
-export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpenChange, hidden, config }: MusicPlayerProps) {
+export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpenChange, hidden, config, theme = 'cream' }: MusicPlayerProps) {
   const playlist = config.playlist && config.playlist.length > 0 ? config.playlist : DEFAULT_FALLBACK_PLAYLIST;
 
   const [internalIsOpen, setInternalIsOpen] = useState(false);
@@ -162,8 +163,11 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
           const x = i * (barWidth + spacing);
           const y = canvas.height - height;
 
-          // Cute romantic pink-gold gradient
-          ctx.fillStyle = `rgba(232, 105, 138, ${0.45 + percent * 0.55})`;
+          // Cute romantic pink-gold gradient or gorgeous sky blue gradient
+          const r = theme === 'cream' ? 232 : 14;
+          const g = theme === 'cream' ? 105 : 165;
+          const b = theme === 'cream' ? 138 : 233;
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.45 + percent * 0.55})`;
           ctx.beginPath();
           ctx.roundRect(x, y, barWidth, height, 1.5);
           ctx.fill();
@@ -174,7 +178,10 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
           const height = 2 + Math.abs(Math.sin(i * 0.3 + Date.now() * 0.003)) * 4;
           const x = i * (barWidth + spacing);
           const y = canvas.height - height;
-          ctx.fillStyle = 'rgba(232, 105, 138, 0.4)';
+          const r = theme === 'cream' ? 232 : 14;
+          const g = theme === 'cream' ? 105 : 165;
+          const b = theme === 'cream' ? 138 : 233;
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.4)`;
           ctx.beginPath();
           ctx.roundRect(x, y, barWidth, height, 1.5);
           ctx.fill();
@@ -186,7 +193,7 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
     return () => {
       cancelAnimationFrame(localFrameId);
     };
-  }, [isPlaying]);
+  }, [isPlaying, theme]);
 
   const initAudioNodes = () => {
     if (audioContextRef.current) return; // already initialized
@@ -290,7 +297,7 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
           initial={{ scale: 0, opacity: 0, x: -40 }}
           animate={{ scale: 1, opacity: 1, x: 0 }}
           transition={{ delay: 0.4, duration: 0.6, type: 'spring' }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 sm:left-6 sm:translate-x-0 z-40 select-none flex items-center gap-3"
+          className="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-45 select-none flex items-center gap-3"
         >
           {/* Turntable Base Case */}
           <div 
@@ -298,10 +305,14 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
               initAudioNodes();
               setIsOpen(!isOpen);
             }}
-            className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-[#26180f] to-[#120a05] border border-romantic-gold/25 p-2 shadow-[0_16px_36px_rgba(37,22,11,0.45)] flex items-center justify-center group cursor-pointer transition-transform duration-300 hover:scale-103"
+            className={`relative w-14 h-14 md:w-24 md:h-24 rounded-2xl p-1.5 md:p-2 flex items-center justify-center group cursor-pointer transition-transform duration-300 hover:scale-103 ${
+              theme === 'cream'
+                ? 'bg-gradient-to-br from-[#26180f] to-[#120a05] border border-romantic-gold/25 shadow-[0_16px_36px_rgba(37,22,11,0.45)]'
+                : 'bg-gradient-to-br from-[#112435] to-[#040e1a] border border-sky-300/25 shadow-[0_16px_36px_rgba(4,14,26,0.45)]'
+            }`}
           >
             {/* Circular Vinyl Groove Deck Indentation */}
-            <div className="absolute inset-2.5 rounded-full border border-white/[0.04] bg-black/50 pointer-events-none" />
+            <div className="absolute inset-1.5 md:inset-2.5 rounded-full border border-white/[0.04] bg-black/50 pointer-events-none" />
 
             {/* Vinyl Disc */}
             <div
@@ -309,24 +320,26 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
                 animation: isPlaying ? 'spin 12s linear infinite' : 'none',
                 transformStyle: 'preserve-3d',
               }}
-              className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-neutral-900 border-2 border-neutral-850 shadow-[0_4px_16px_rgba(0,0,0,0.5)] flex items-center justify-center overflow-hidden"
+              className="relative w-11 h-11 md:w-20 md:h-20 rounded-full bg-neutral-900 border-2 border-neutral-850 shadow-[0_4px_16px_rgba(0,0,0,0.5)] flex items-center justify-center overflow-hidden"
             >
               {/* Concentric Groove Lines */}
-              <div className="absolute inset-[3px] rounded-full border border-white/[0.03]" />
-              <div className="absolute inset-2 rounded-full border border-white/[0.06]" />
-              <div className="absolute inset-3.5 rounded-full border border-white/[0.03]" />
-              <div className="absolute inset-5 rounded-full border border-white/[0.05]" />
-              <div className="absolute inset-[26px] rounded-full border border-white/[0.03]" />
+              <div className="absolute inset-[2px] md:inset-[3px] rounded-full border border-white/[0.03]" />
+              <div className="absolute inset-1.5 md:inset-2 rounded-full border border-white/[0.06]" />
+              <div className="absolute inset-2.5 md:inset-3.5 rounded-full border border-white/[0.03]" />
+              <div className="absolute inset-3.5 md:inset-5 rounded-full border border-white/[0.05]" />
+              <div className="absolute inset-[18px] md:inset-[26px] rounded-full border border-white/[0.03]" />
 
               {/* Song Label (Center Circle with Album Art) */}
-              <div className="relative w-7 h-7 sm:w-9 sm:h-9 rounded-full overflow-hidden bg-neutral-800 flex items-center justify-center border border-black z-10 pointer-events-none">
+              <div className="relative w-5 h-5 md:w-9 md:h-9 rounded-full overflow-hidden bg-neutral-800 flex items-center justify-center border border-black z-10 pointer-events-none">
                 <img
                   src={currentTrack.cover || undefined}
                   alt={currentTrack.title}
                   className="w-full h-full object-cover rounded-full"
                 />
                 {/* Spindle center hole */}
-                <div className="absolute w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-romantic-gold border border-black shadow-[inset_0_1px_1.5px_rgba(0,0,0,0.8)]" />
+                <div className={`absolute w-1 h-1 md:w-2 md:h-2 rounded-full border border-black shadow-[inset_0_1px_1.5px_rgba(0,0,0,0.8)] ${
+                  theme === 'cream' ? 'bg-romantic-gold' : 'bg-sky-300'
+                }`} />
               </div>
 
               {/* Vinyl shininess reflection overlays */}
@@ -336,28 +349,38 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
 
             {/* Retro Pivot Styles Stylus Tonearm */}
             <div 
-              className="absolute top-2 right-2.5 w-8 h-12 pointer-events-none transition-transform duration-700 origin-[10px_10px] z-20"
+              className="absolute top-1 right-1.5 w-8 h-12 pointer-events-none transition-transform duration-700 origin-[10px_10px] z-20 scale-65 md:scale-100 md:top-2 md:right-2.5"
               style={{
                 transform: isPlaying ? 'rotate(24deg)' : 'rotate(0deg)',
               }}
             >
               {/* Head pivot joint */}
-              <div className="absolute top-1 left-2 w-3.5 h-3.5 rounded-full bg-gradient-to-br from-romantic-gold to-yellow-600 border border-white/10 shadow-sm" />
+              <div className={`absolute top-0.5 left-1 md:top-1 md:left-2 w-2.5 h-2.5 md:w-3.5 md:h-3.5 rounded-full border border-white/10 shadow-sm ${
+                theme === 'cream'
+                  ? 'bg-gradient-to-br from-romantic-gold to-yellow-600'
+                  : 'bg-gradient-to-br from-sky-400 to-blue-500'
+              }`} />
               {/* Arm line string */}
-              <div className="absolute top-2.5 left-[12px] w-0.5 h-10 bg-gradient-to-b from-gray-400 via-gray-300 to-gray-400 rounded-full" />
+              <div className="absolute top-1.5 left-[7px] md:top-2.5 md:left-[12px] w-0.5 h-6 md:h-10 bg-gradient-to-b from-gray-400 via-gray-300 to-gray-400 rounded-full" />
               {/* Curved stylus tip cartridge */}
-              <div className="absolute top-[32px] left-[9px] w-1.5 h-2.5 bg-romantic-rose-light/95 rounded-[1px] rotate-[-15deg] shadow-sm" />
+              <div className={`absolute top-[20px] left-[5px] md:top-[32px] md:left-[9px] w-1.5 h-2 md:h-2.5 rounded-[1px] rotate-[-15deg] shadow-sm ${
+                theme === 'cream' ? 'bg-romantic-rose-light/95' : 'bg-sky-400'
+              }`} />
             </div>
 
             {/* Heartbeat glowing beat indicator when active */}
             {isPlaying && (
-              <span className="absolute -top-1 -left-1 w-3.5 h-3.5 rounded-full bg-romantic-rose animate-ping opacity-60" />
+              <span className={`absolute -top-1 -left-1 w-3.5 h-3.5 rounded-full animate-ping opacity-60 ${
+                theme === 'cream' ? 'bg-romantic-rose' : 'bg-sky-500'
+              }`} />
             )}
 
             {/* Tiny play state play/pause indicator button overlay */}
             <button 
               type="button"
-              className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-romantic-rose text-white border border-white/10 flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:scale-110 active:scale-95 z-30"
+              className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full text-white border border-white/10 flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:scale-110 active:scale-95 z-30 ${
+                theme === 'cream' ? 'bg-romantic-rose' : 'bg-sky-500'
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
                 initAudioNodes();
@@ -377,9 +400,15 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
           </div>
 
           {/* Floating Tooltip with current playing track info */}
-          <div className="hidden sm:flex flex-col bg-romantic-cream/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-romantic-gold/25 shadow-md pointer-events-none max-w-[150px] animate-fade-in">
-            <span className="text-[9px] uppercase tracking-widest text-romantic-gold font-bold truncate">Now Playing</span>
-            <span className="text-xs text-romantic-dark font-medium truncate">{currentTrack.title}</span>
+          <div className={`hidden sm:flex flex-col backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-md pointer-events-none max-w-[150px] animate-fade-in ${
+            theme === 'cream'
+              ? 'bg-romantic-cream/90 border border-romantic-gold/25 text-romantic-dark'
+              : 'bg-[#f0f8ff]/90 border border-sky-200/50 text-sky-950'
+          }`}>
+            <span className={`text-[9px] uppercase tracking-widest font-bold truncate ${
+              theme === 'cream' ? 'text-romantic-gold' : 'text-sky-600'
+            }`}>Sedang Diputar</span>
+            <span className="text-xs font-medium truncate">{currentTrack.title}</span>
           </div>
         </motion.div>
       )}
@@ -392,7 +421,11 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-[96px] left-6 z-40 w-72 rounded-3xl dark-glass-panel p-6 flex flex-col items-center"
+            className={`fixed bottom-[76px] left-4 md:bottom-[108px] md:left-6 z-45 w-72 rounded-3xl p-6 flex flex-col items-center ${
+              theme === 'cream' 
+                ? 'dark-glass-panel' 
+                : 'bg-slate-950/85 backdrop-blur-md border border-sky-300/20 shadow-[0_16px_40px_rgba(4,14,26,0.6)]'
+            }`}
           >
             {/* Close Toggle */}
             <button
@@ -425,7 +458,9 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
               <h4 className="font-serif text-base text-white/90 font-medium truncate mb-1">
                 {currentTrack.title}
               </h4>
-              <p className="text-xs text-romantic-rose-light/70 tracking-widest uppercase font-light">
+              <p className={`text-xs tracking-widest uppercase font-light ${
+                theme === 'cream' ? 'text-romantic-rose-light/70' : 'text-sky-300/70'
+              }`}>
                 {currentTrack.artist}
               </p>
             </div>
@@ -438,9 +473,13 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
                 max="100"
                 value={progress}
                 onChange={handleProgressChange}
-                className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-romantic-rose outline-none"
+                className={`w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer outline-none ${
+                  theme === 'cream' ? 'accent-romantic-rose' : 'accent-sky-500'
+                }`}
               />
-              <div className="flex justify-between mt-1.5 text-[10px] text-romantic-blush/40 font-mono">
+              <div className={`flex justify-between mt-1.5 text-[10px] font-mono ${
+                theme === 'cream' ? 'text-romantic-blush/40' : 'text-sky-200/40'
+              }`}>
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
@@ -457,7 +496,11 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
 
               <button
                 onClick={togglePlay}
-                className="w-12 h-12 rounded-full bg-gradient-to-tr from-romantic-rose to-romantic-gold text-white flex items-center justify-center hover:shadow-md active:scale-95 transition-all shadow-romantic-rose/20"
+                className={`w-12 h-12 rounded-full text-white flex items-center justify-center hover:shadow-md active:scale-95 transition-all ${
+                  theme === 'cream' 
+                    ? 'bg-gradient-to-tr from-romantic-rose to-romantic-gold shadow-romantic-rose/20' 
+                    : 'bg-gradient-to-tr from-sky-500 to-sky-400 shadow-sky-500/20'
+                }`}
               >
                 {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white ml-0.5" />}
               </button>
@@ -479,7 +522,9 @@ export default function MusicPlayer({ autoPlay, isOpen: controlledIsOpen, onOpen
                 max="100"
                 value={volume * 100}
                 onChange={(e) => setVolume(parseFloat(e.target.value) / 100)}
-                className="flex-1 h-0.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-romantic-rose-light/80 outline-none"
+                className={`flex-1 h-0.5 bg-white/10 rounded-lg appearance-none cursor-pointer outline-none ${
+                  theme === 'cream' ? 'accent-romantic-rose-light/80' : 'accent-sky-400/80'
+                }`}
               />
             </div>
           </motion.div>

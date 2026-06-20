@@ -29,3 +29,12 @@ export interface GalleryItem {
   src: string; // Base64 or URL
   isUserUploaded?: boolean;
 }
+
+export interface ScrapbookItem {
+  id: string;
+  src: string; // URL or base64 file
+  caption: string; // Sweet or funny description
+  funnyNote?: string; // Additional hand-written humorous bubble or commentary
+  stickerType?: 'tape' | 'heart' | 'star' | 'coffee' | 'cookie' | 'sparkle';
+  rotation?: number; // tilt angle
+}

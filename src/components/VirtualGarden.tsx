@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { GardenFlowerItem } from '../types';
 
 const GARDEN_FLOWERS: GardenFlowerItem[] = [
-  { id: 'f-1', name: 'Elegant Rose', emoji: '🌹', wish: 'May love and romantic warmth surround you always.', stemHeight: 88 },
-  { id: 'f-2', name: 'Cherry Blossom', emoji: '🌸', wish: 'May each day bring you sweet soft beginnings.', stemHeight: 72 },
-  { id: 'f-3', name: 'White Lotus', emoji: '💮', wish: 'May you rise above any storm with peace & beauty.', stemHeight: 96 },
-  { id: 'f-4', name: 'Hibiscus', emoji: '🌺', wish: 'May your heart always burn with sweet passion.', stemHeight: 80 },
-  { id: 'f-5', name: 'Daisy', emoji: '🌼', wish: 'May child-like joy and deep laughter trace your steps.', stemHeight: 64 },
-  { id: 'f-6', name: 'Tulip', emoji: '🌷', wish: 'May all your deepest dreams and hopes blossom beautifully.', stemHeight: 76 },
-  { id: 'f-7', name: 'Sunflower', emoji: '🌻', wish: 'May this year be filled with radiant sunshine & good health.', stemHeight: 92 },
+  { id: 'f-1', name: 'Mawar Cantik', emoji: '🌹', wish: 'Semoga kehangatan cinta romantis selalu menyelimutimu.', stemHeight: 88 },
+  { id: 'f-2', name: 'Bunga Sakura', emoji: '🌸', wish: 'Semoga setiap hari barumu membawakan awal yang manis dan lembut.', stemHeight: 72 },
+  { id: 'f-3', name: 'Teratai Putih', emoji: '💮', wish: 'Semoga kamu selalu melewati setiap badai dengan penuh kedamaian dan keindahan.', stemHeight: 96 },
+  { id: 'f-4', name: 'Kembang Sepatu', emoji: '🌺', wish: 'Semoga hatimu selalu dipenuhi hasrat cinta yang membara dan manis.', stemHeight: 80 },
+  { id: 'f-5', name: 'Bunga Daisy', emoji: '🌼', wish: 'Semoga kebahagiaan murni dan tawa yang dalam selalu mengiringi langkahmu.', stemHeight: 64 },
+  { id: 'f-6', name: 'Bunga Tulip', emoji: '🌷', wish: 'Semoga impian terdalam dan harapanmu mekar dengan indahnya.', stemHeight: 76 },
+  { id: 'f-7', name: 'Bunga Matahari', emoji: '🌻', wish: 'Semoga tahun ini dipenuhi dengan kehangatan sinar mentari dan kesehatan yang baik.', stemHeight: 92 },
 ];
 
 interface Sparkle {
@@ -19,15 +19,21 @@ interface Sparkle {
   char: string;
 }
 
-export default function VirtualGarden() {
+interface VirtualGardenProps {
+  theme?: 'cream' | 'skyblue';
+}
+
+export default function VirtualGarden({ theme = 'cream' }: VirtualGardenProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+
+  const isSky = theme === 'skyblue';
 
   const handleMouseEnter = (flower: GardenFlowerItem, e: React.MouseEvent<HTMLDivElement>) => {
     setHoveredId(flower.id);
 
     // Spawn 6 pretty mini star sparkles at mouse/flower position
-    const chars = ['✨', '✦', '✧', '🌸', '💫', '💖'];
+    const chars = isSky ? ['✨', '✦', '✧', '❄️', '💫', '🎈'] : ['✨', '✦', '✧', '🌸', '💫', '💖'];
     const rect = e.currentTarget.getBoundingClientRect();
     const list: Sparkle[] = [];
     
@@ -51,25 +57,29 @@ export default function VirtualGarden() {
   };
 
   return (
-    <section className="relative py-24 px-6 overflow-hidden bg-romantic-cream/40 border-b border-t border-romantic-blush/35 select-none text-center">
+    <section className={`relative py-24 px-6 overflow-hidden border-b border-t transition-colors duration-500 select-none text-center ${
+      isSky ? 'bg-[#ecf5fa]/40 border-sky-200/35' : 'bg-romantic-cream/40 border-romantic-blush/35'
+    }`}>
       
       {/* Garden Background Gradient overlay */}
-      <div className="absolute inset-x-0 top-0 bottom-0 bg-gradient-to-b from-white/0 via-romantic-blush/12 to-white/0 pointer-events-none" />
+      <div className={`absolute inset-x-0 top-0 bottom-0 pointer-events-none ${
+        isSky ? 'bg-gradient-to-b from-white/0 via-sky-300/10 to-white/0' : 'bg-gradient-to-b from-white/0 via-romantic-blush/12 to-white/0'
+      }`} />
 
       <div className="container mx-auto max-w-5xl relative z-10 flex flex-col items-center">
         
         {/* Section title block */}
-        <p className="text-xs font-light uppercase tracking-widest text-romantic-rose mb-3">
-          your personalized birthday garden
+        <p className={`text-xs font-light uppercase tracking-widest mb-3 ${isSky ? 'text-sky-600' : 'text-romantic-rose'}`}>
+          taman ulang tahun pribadimu
         </p>
         
-        <h2 className="font-serif text-3xl sm:text-5xl font-light text-romantic-dark leading-tight mb-6">
-          A Garden Blooming<br />
-          <span className="font-script text-4xl sm:text-5xl text-romantic-rose italic leading-normal">just for you today</span>
+        <h2 className={`font-serif text-3xl sm:text-5xl font-light leading-tight mb-6 ${isSky ? 'text-sky-950' : 'text-romantic-dark'}`}>
+          Taman Cantik yang Mekar<br />
+          <span className={`font-script text-4xl sm:text-5xl italic leading-normal ${isSky ? 'text-sky-500' : 'text-romantic-rose'}`}>khusus untukmu hari ini</span>
         </h2>
 
-        <p className="max-w-md text-sm text-romantic-dark/60 font-light mb-16 italic">
-          Hover or tap each blossom below to unlock the birthday wishes and blessings planted inside...
+        <p className={`max-w-md text-sm font-light mb-16 italic ${isSky ? 'text-[#1c2e3d]/70' : 'text-romantic-dark/60'}`}>
+          Arahkan kursor atau ketuk setiap bunga di bawah untuk membuka ucapan selamat ulang tahun dan berkah yang tertanam di dalamnya...
         </p>
 
         {/* The Garden Stage */}
@@ -91,12 +101,14 @@ export default function VirtualGarden() {
                       animate={{ opacity: 1, y: 0, x: '-50%', scale: 1 }}
                       exit={{ opacity: 0, y: 15, x: '-50%', scale: 0.9 }}
                       transition={{ duration: 0.25, ease: 'easeOut' }}
-                      className="absolute bottom-[calc(100%+16px)] left-1/2 -translate-x-1/2 w-48 p-4 rounded-2xl glass-panel text-center z-30 shadow-lg border border-romantic-rose-light/50"
+                      className={`absolute bottom-[calc(100%+16px)] left-1/2 -translate-x-1/2 w-48 p-4 rounded-2xl glass-panel text-center z-30 shadow-lg border ${
+                        isSky ? 'border-sky-300/50' : 'border-romantic-rose-light/50'
+                      }`}
                     >
-                      <h4 className="font-serif text-sm font-medium text-romantic-dark mb-1">
+                      <h4 className={`font-serif text-sm font-medium mb-1 ${isSky ? 'text-sky-950 font-semibold' : 'text-romantic-dark'}`}>
                         {flower.name}
                       </h4>
-                      <p className="text-[11px] text-romantic-rose/90 font-light leading-relaxed font-sans">
+                      <p className={`text-[11px] font-light leading-relaxed font-sans ${isSky ? 'text-sky-600 font-medium' : 'text-romantic-rose/90'}`}>
                         {flower.wish}
                       </p>
                       
@@ -152,10 +164,12 @@ export default function VirtualGarden() {
         </div>
 
         {/* Delicate decorative floor soil line */}
-        <div className="w-10/12 max-w-lg h-0.5 bg-gradient-to-r from-transparent via-romantic-rose-light/25 to-transparent mt-4 mb-2" />
+        <div className={`w-10/12 max-w-lg h-0.5 mt-4 mb-2 bg-gradient-to-r from-transparent to-transparent ${
+          isSky ? 'via-sky-400/25' : 'via-romantic-rose-light/25'
+        }`} />
         
-        <p className="text-xs text-romantic-dark/40 font-light flex items-center gap-1">
-          Each flower holds unique blessings cultivated specifically for {hoveredId ? 'you' : 'your birthday'}...
+        <p className={`text-xs font-light flex items-center gap-1 ${isSky ? 'text-sky-950/40' : 'text-romantic-dark/40'}`}>
+          Setiap bunga menyimpan doa khusus yang ditanam spesial untuk {hoveredId ? 'kamu' : 'hari ulang tahunmu'}...
         </p>
 
       </div>

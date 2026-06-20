@@ -24,7 +24,19 @@ const COLORS = [
   'rgba(232, 196, 140, ',  // Honey Caramel
 ];
 
-export default function FloralBackground() {
+const SKY_COLORS = [
+  'rgba(14, 116, 144, ',   // Cyan Blue
+  'rgba(56, 189, 248, ',   // Sky Blue
+  'rgba(186, 230, 253, ',  // Soft Blue
+  'rgba(224, 242, 254, ',  // Alice/Ice Blue
+  'rgba(3, 105, 161, ',    // Deep Cyan
+];
+
+interface FloralBackgroundProps {
+  theme?: 'cream' | 'skyblue';
+}
+
+export default function FloralBackground({ theme = 'cream' }: FloralBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -39,6 +51,8 @@ export default function FloralBackground() {
     let width = window.innerWidth;
     let height = window.innerHeight;
 
+    const currentColors = theme === 'skyblue' ? SKY_COLORS : COLORS;
+
     const resize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
@@ -51,7 +65,7 @@ export default function FloralBackground() {
     };
 
     const createPetal = (isNew = false): Petal => {
-      const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      const color = currentColors[Math.floor(Math.random() * currentColors.length)];
       return {
         x: Math.random() * width,
         y: isNew ? -20 : Math.random() * height,
@@ -151,7 +165,7 @@ export default function FloralBackground() {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [theme]);
 
   return (
     <canvas

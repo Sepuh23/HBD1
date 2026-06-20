@@ -31,16 +31,20 @@ function PolaroidCard({
   item,
   onDelete,
   onUpdateTitle,
-  isAdmin
+  isAdmin,
+  theme = 'cream'
 }: {
   item: GalleryItem;
   onDelete: (id: string) => void;
   onUpdateTitle: (id: string, text: string) => void;
   isAdmin?: boolean;
+  theme?: 'cream' | 'skyblue';
 }) {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [titleText, setTitleText] = useState(item.title);
+
+  const isSky = theme === 'skyblue';
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = cardRef.current;
@@ -51,7 +55,9 @@ function PolaroidCard({
     const cy = (e.clientY - rect.top) / rect.height - 0.5;
 
     card.style.transform = `perspective(800px) rotateY(${cx * 10}deg) rotateX(${-cy * 10}deg) scale(1.025)`;
-    card.style.boxShadow = '0 20px 45px rgba(169, 124, 80, 0.12), 0 0 35px rgba(217, 156, 74, 0.2)';
+    card.style.boxShadow = isSky
+      ? '0 20px 45px rgba(14, 116, 144, 0.08), 0 0 35px rgba(56, 189, 248, 0.15)'
+      : '0 20px 45px rgba(169, 124, 80, 0.12), 0 0 35px rgba(217, 156, 74, 0.2)';
   };
 
   const handleMouseLeave = () => {
@@ -63,7 +69,7 @@ function PolaroidCard({
 
   const saveTitle = () => {
     setIsEditing(false);
-    onUpdateTitle(item.id, titleText.trim() || 'beautiful');
+    onUpdateTitle(item.id, titleText.trim() || 'indah');
   };
 
   return (
@@ -72,21 +78,27 @@ function PolaroidCard({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ transition: 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease' }}
-      className="bg-white p-3.5 pb-6 rounded-2xl shadow-md border border-romantic-blush/25 relative group overflow-hidden flex flex-col cursor-default"
+      className={`bg-white p-3.5 pb-6 rounded-2xl shadow-md relative group overflow-hidden flex flex-col cursor-default ${
+        isSky ? 'border border-sky-200/35' : 'border border-romantic-blush/25'
+      }`}
     >
       {/* 3D Sheen highlight link */}
       <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/8 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
       {/* Image Container */}
-      <div className="w-full aspect-square rounded-lg overflow-hidden bg-romantic-cream relative">
+      <div className={`w-full aspect-square rounded-lg overflow-hidden relative ${
+        isSky ? 'bg-[#ecf5fa]' : 'bg-romantic-cream'
+      }`}>
         <img
           src={item.src || undefined}
           alt={item.title}
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-104"
         />
-        {/* Rose Tint overlay on hover */}
-        <div className="absolute inset-0 bg-romantic-rose/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        {/* Rose or Sky Tint overlay on hover */}
+        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none ${
+          isSky ? 'bg-sky-500/10' : 'bg-romantic-rose/10'
+        }`} />
 
         {/* Delete button (only for admin user-uploaded or hovered when admin) */}
         {isAdmin && (
@@ -110,18 +122,22 @@ function PolaroidCard({
             onKeyDown={(e) => e.key === 'Enter' && saveTitle()}
             autoFocus
             maxLength={20}
-            className="w-full px-2 py-0.5 border-b border-romantic-rose text-center italic font-script text-romantic-dark text-lg focus:outline-none"
+            className={`w-full px-2 py-0.5 border-b text-center italic font-script text-romantic-dark text-lg focus:outline-none ${
+              isSky ? 'border-sky-500' : 'border-romantic-rose'
+            }`}
           />
         ) : (
           <p
             onClick={() => isAdmin && setIsEditing(true)}
             className={`font-script text-xl sm:text-2xl text-romantic-dark select-none py-1 truncate max-w-full relative inline-block group/caption ${
-              isAdmin ? 'hover:text-romantic-rose hover:cursor-pointer' : ''
+              isAdmin ? (isSky ? 'hover:text-sky-500 hover:cursor-pointer' : 'hover:text-romantic-rose hover:cursor-pointer') : ''
             }`}
           >
             {item.title}
             {isAdmin && (
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px bg-romantic-rose transition-all group-hover/caption:w-full" />
+              <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-px transition-all group-hover/caption:w-full ${
+                isSky ? 'bg-sky-500' : 'bg-romantic-rose'
+              }`} />
             )}
           </p>
         )}
@@ -134,10 +150,13 @@ interface PhotoGalleryProps {
   isAdmin?: boolean;
   items: GalleryItem[];
   onUpdate: (items: GalleryItem[]) => void;
+  theme?: 'cream' | 'skyblue';
 }
 
-export default function PhotoGallery({ isAdmin = false, items, onUpdate }: PhotoGalleryProps) {
+export default function PhotoGallery({ isAdmin = false, items, onUpdate, theme = 'cream' }: PhotoGalleryProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const isSky = theme === 'skyblue';
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -150,7 +169,7 @@ export default function PhotoGallery({ isAdmin = false, items, onUpdate }: Photo
         const url = await uploadFile(file);
         newItems.push({
           id: `g-custom-${Date.now()}-${Math.random()}`,
-          title: 'precious item',
+          title: 'foto indah',
           src: url,
           isUserUploaded: true,
         });
@@ -176,20 +195,20 @@ export default function PhotoGallery({ isAdmin = false, items, onUpdate }: Photo
   };
 
   return (
-    <section className="py-24 px-6 bg-white/20 select-none">
+    <section className={`py-24 px-6 select-none transition-colors duration-500 ${isSky ? 'bg-[#f4faff]/30' : 'bg-white/20'}`}>
       <div className="container mx-auto max-w-4xl relative z-10 text-center">
         
         {/* Header content */}
-        <p className="text-xs font-light uppercase tracking-widest text-romantic-rose mb-3">
-          celebrating you
+        <p className={`text-xs font-light uppercase tracking-widest mb-3 ${isSky ? 'text-sky-600 font-semibold' : 'text-romantic-rose'}`}>
+          merayakanmu
         </p>
-        <h2 className="font-serif text-3xl sm:text-5xl font-light text-romantic-dark leading-tight mb-4">
-          Your Beautiful <em className="italic text-romantic-rose">Pictures</em>
+        <h2 className={`font-serif text-3xl sm:text-5xl font-light leading-tight mb-4 ${isSky ? 'text-sky-950' : 'text-romantic-dark'}`}>
+          Foto-Foto <em className={`italic ${isSky ? 'text-sky-500' : 'text-romantic-rose'}`}>Cantikmu</em>
         </h2>
-        <p className="max-w-md text-sm text-romantic-dark/60 font-light mb-12 mx-auto">
+        <p className={`max-w-md text-sm font-light mb-12 mx-auto ${isSky ? 'text-sky-90/60 text-[#1e2f3d]/70' : 'text-romantic-dark/60'}`}>
           {isAdmin 
-            ? "Manage and upload beautiful photographs or couple selfies together to create birthday memories. Double click captions to customize!"
-            : "A beautiful collection of our special moments together. Memories captured with infinite warmth."}
+            ? "Kelola dan unggah foto-foto indah atau swafoto berdua untuk membuat kenangan ulang tahun. Klik dua kali teks foto untuk mengubah kata-katanya!"
+            : "Kumpulan foto indah dari setiap momen spesial kita bersama. Kenangan yang diabadikan dengan kehangatan tanpa batas."}
         </p>
 
         {/* Gallery Control Actions - Only shown to Admin */}
@@ -205,18 +224,26 @@ export default function PhotoGallery({ isAdmin = false, items, onUpdate }: Photo
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-6 py-3 rounded-full bg-gradient-to-r from-romantic-rose to-romantic-rose-light text-white text-xs font-semibold tracking-wider uppercase inline-flex items-center gap-2 cursor-pointer shadow-md shadow-romantic-rose/15 hover:brightness-105 active:scale-98 transition-all duration-300"
+              className={`px-6 py-3 rounded-full text-white text-xs font-semibold tracking-wider uppercase inline-flex items-center gap-2 cursor-pointer shadow-md active:scale-98 transition-all duration-300 ${
+                isSky 
+                  ? 'bg-gradient-to-r from-sky-500 to-sky-400 shadow-sky-400/15 hover:brightness-105' 
+                  : 'bg-gradient-to-r from-romantic-rose to-romantic-rose-light shadow-romantic-rose/15 hover:brightness-105'
+              }`}
             >
-              <Upload className="w-4 h-4" /> Upload Her/His Picture
+              <Upload className="w-4 h-4" /> Unggah Foto Dia
             </button>
 
             {/* Reset button only if user customized */}
             {items.some((x) => x.isUserUploaded) && (
               <button
                 onClick={resetGallery}
-                className="px-5 py-3 rounded-full bg-white/70 border border-romantic-blush text-romantic-dark text-xs font-medium tracking-wider uppercase inline-flex items-center gap-2 cursor-pointer hover:bg-white hover:text-romantic-rose transition-all duration-300 active:scale-98"
+                className={`px-5 py-3 rounded-full bg-white/70 border text-xs font-medium tracking-wider uppercase inline-flex items-center gap-2 cursor-pointer transition-all duration-300 active:scale-98 ${
+                  isSky 
+                    ? 'border-sky-200 text-sky-950 hover:bg-white hover:text-sky-500' 
+                    : 'border-romantic-blush text-romantic-dark hover:bg-white hover:text-romantic-rose'
+                }`}
               >
-                Reset to Defaults
+                Atur Ulang ke Bawaan
               </button>
             )}
           </div>
@@ -242,6 +269,7 @@ export default function PhotoGallery({ isAdmin = false, items, onUpdate }: Photo
                 onDelete={handleDelete}
                 onUpdateTitle={handleUpdateTitle}
                 isAdmin={isAdmin}
+                theme={theme}
               />
             </motion.div>
           ))}
@@ -249,8 +277,10 @@ export default function PhotoGallery({ isAdmin = false, items, onUpdate }: Photo
 
         {/* Tiny polaroid footnote - Only shown to Admin */}
         {isAdmin && (
-          <p className="mt-12 text-[11px] text-romantic-dark/40 font-light italic flex items-center justify-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-romantic-gold" /> Tip: Tap photo text to type customized words and expressions!
+          <p className={`mt-12 text-[11px] font-light italic flex items-center justify-center gap-1.5 ${
+            isSky ? 'text-sky-950/40' : 'text-romantic-dark/40'
+          }`}>
+            <Sparkles className={`w-3.5 h-3.5 ${isSky ? 'text-sky-500' : 'text-romantic-gold'}`} /> Tip: Ketuk teks foto untuk mengetik kata-kata dan ekspresi pilihanmu sendiri!
           </p>
         )}
 

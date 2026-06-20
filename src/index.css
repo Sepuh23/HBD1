@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Jost:wght@200;300;400;500;600&family=Petit+Formal+Script&family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Jost:wght@200;300;400;500;600&family=Pacifico&family=Lobster&family=Great+Vibes&display=swap');
 
 @theme {
   --font-serif: "Cormorant Garamond", serif;
   --font-sans: "Jost", sans-serif;
-  --font-script: "Petit Formal Script", cursive;
+  --font-script: "Pacifico", "Lobster", cursive;
   --font-love: "Great Vibes", cursive;
   
   --color-romantic-dark: #372213;
