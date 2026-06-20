@@ -6,6 +6,7 @@ interface IntroSceneProps {
   onComplete: (partnerName: string) => void;
   theme: 'cream' | 'skyblue';
   setTheme: (newTheme: 'cream' | 'skyblue') => void;
+  defaultPartnerName?: string;
 }
 
 const BURST_FLOWERS = ['✨', '🤎', '🍂', '✨', '💛', '🤍', '🌼', '⭐', '✨', '🍯', '🍂', '✨'];
@@ -30,8 +31,8 @@ interface BurstFlower {
   scale: number;
 }
 
-export default function IntroScene({ onComplete, theme, setTheme }: IntroSceneProps) {
-  const [partnerName, setPartnerName] = useState('Cintaku');
+export default function IntroScene({ onComplete, theme, setTheme, defaultPartnerName }: IntroSceneProps) {
+  const [partnerName, setPartnerName] = useState(defaultPartnerName || 'Cintaku');
   const [showInput, setShowInput] = useState(true);
   const [isOpening, setIsOpening] = useState(false);
   const [isOpened, setIsOpened] = useState(false);

@@ -64,7 +64,15 @@ export default function App() {
   }, [isAdminMode, isLoaded]);
 
   const handleIntroComplete = (name: string) => {
-    setPartnerName(name);
+    const cleanName = name.trim() || 'Cintaku';
+    setPartnerName(cleanName);
+    if (config) {
+      const updatedConfig = { ...config, partnerName: cleanName };
+      setConfig(updatedConfig);
+      saveConfig(updatedConfig).catch(err => {
+        console.error('Failed to save custom partner name:', err);
+      });
+    }
     setShowIntro(false);
     setIsMusicOpen(true);
   };
@@ -146,6 +154,7 @@ export default function App() {
           onComplete={handleIntroComplete} 
           theme={theme}
           setTheme={handleThemeChange}
+          defaultPartnerName={partnerName}
         />
       ) : (
         <div className="relative animate-fade-in pt-12">
